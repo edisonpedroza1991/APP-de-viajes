@@ -39,9 +39,10 @@ function renderHeroCollage() {
     .map(p => `<div class="tile" style="background-image:url('${p.url}')"></div>`)
     .join("");
 
-  // Crédito consolidado de todas las fotos usadas en la app (collage + portadas),
-  // sin repetir autores — algunas licencias (CC BY / CC BY-SA) lo exigen.
-  const all = [...collage, ...TRIP.cities.map(c => c.photoCredit).filter(Boolean).map(c => ({ author: c.author, license: c.license, pageUrl: c.url }))];
+  // Crédito consolidado de todas las fotos usadas en la app (fondo + collage +
+  // portadas), sin repetir autores — algunas licencias (CC BY / CC BY-SA) lo exigen.
+  const homeBg = TRIP.homeBackground ? [TRIP.homeBackground] : [];
+  const all = [...homeBg, ...collage, ...TRIP.cities.map(c => c.photoCredit).filter(Boolean).map(c => ({ author: c.author, license: c.license, pageUrl: c.url }))];
   const seen = new Set();
   const unique = all.filter(p => {
     const key = p.author + p.license;
@@ -178,64 +179,64 @@ function applyPrivateOverrides() {
 }
 
 // ---------- Vistas ----------
+//
+// No hay pantallas separadas de "inicio" y "detalle": todo vive en un solo
+// acordeón. Cada país es un bloque con su foto grande de botón; tocarlo lo
+// abre (muestra vuelos/hotel/etc. justo debajo) y tocarlo de nuevo lo cierra.
+// Igual para "Pendientes". La barra de pills de arriba hace lo mismo.
 
-function renderHome() {
-  const cards = TRIP.cities.map(c => `
-    <button class="country-card" data-route="${c.id}" style="background-image:url('${c.cover}')">
-      <span class="country-card-overlay"></span>
-      <span class="country-card-content">
-        <span class="flag">${c.flag}</span>
-        <span class="country-name">${c.name}</span>
-        <span class="country-dates">${fmtDate(c.dateFrom)} → ${fmtDate(c.dateTo)}</span>
-      </span>
-    </button>
-  `).join("");
+function renderCountryBlock(city) {
+  const isOpen = currentRoute() === city.id;
+  return `
+    <div class="country-block ${isOpen ? "open" : ""}">
+      <button class="country-card" data-route="${city.id}" style="background-image:url('${city.cover}')">
+        <span class="country-card-overlay"></span>
+        <span class="country-card-content">
+          <span class="flag">${city.flag}</span>
+          <span class="country-name">${city.name}</span>
+          <span class="country-dates">${fmtDate(city.dateFrom)} → ${fmtDate(city.dateTo)}</span>
+        </span>
+        <span class="expand-hint">${isOpen ? "▲" : "▼"}</span>
+      </button>
+      ${isOpen ? `
+        <div class="country-detail">
+          ${photoCreditLine(city.photoCredit)}
+          ${transportCard(city.transportIn)}
+          ${hotelCard(city.hotel)}
+          ${transitCard(city.gettingToHotel)}
+          ${activitiesCard(city.activities)}
+        </div>
+      ` : ""}
+    </div>
+  `;
+}
 
+function renderPendingBlock() {
   const pendingCount = (TRIP.pending || []).length;
+  if (pendingCount === 0) return "";
+  const isOpen = currentRoute() === "pendientes";
+  return `
+    <div class="pending-block ${isOpen ? "open" : ""}">
+      <button class="pending-card" data-route="pendientes">
+        <span class="icon">📋</span>
+        <span>Pendientes por confirmar</span>
+        <span class="pending-count">${pendingCount}</span>
+      </button>
+      ${isOpen ? `<ul class="pending-list">${TRIP.pending.map(p => `<li>${p}</li>`).join("")}</ul>` : ""}
+    </div>
+  `;
+}
 
+function renderMain() {
+  const bg = TRIP.homeBackground;
   return `
     <section class="home-view">
-      <h2 class="section-title">Elige un destino</h2>
-      <div class="country-grid">${cards}</div>
-      ${pendingCount > 0 ? `
-        <button class="pending-card" data-route="pendientes">
-          <span class="icon">📋</span>
-          <span>Pendientes por confirmar</span>
-          <span class="pending-count">${pendingCount}</span>
-        </button>
-      ` : ""}
-    </section>
-  `;
-}
-
-function renderDetail(city) {
-  return `
-    <section class="detail-view">
-      <div class="detail-banner" style="background-image:url('${city.cover}')">
-        <span class="detail-banner-overlay"></span>
-        <div class="detail-banner-content">
-          <span class="flag">${city.flag}</span>
-          <h2>${city.name}, ${city.country}</h2>
-          <p class="city-dates">${fmtDate(city.dateFrom)} → ${fmtDate(city.dateTo)}</p>
-        </div>
+      ${bg ? `<div class="home-bg" style="background-image:url('${bg.url}')"></div>` : ""}
+      <div class="home-content">
+        <h2 class="section-title">Elige un destino</h2>
+        <div class="country-grid">${TRIP.cities.map(renderCountryBlock).join("")}</div>
+        ${renderPendingBlock()}
       </div>
-      ${photoCreditLine(city.photoCredit)}
-      <div class="detail-cards">
-        ${transportCard(city.transportIn)}
-        ${hotelCard(city.hotel)}
-        ${transitCard(city.gettingToHotel)}
-        ${activitiesCard(city.activities)}
-      </div>
-    </section>
-  `;
-}
-
-function renderPendingView() {
-  const items = (TRIP.pending || []).map(p => `<li>${p}</li>`).join("");
-  return `
-    <section class="detail-view">
-      <h2 class="section-title">Pendientes por confirmar</h2>
-      <ul class="pending-list">${items}</ul>
     </section>
   `;
 }
@@ -261,24 +262,16 @@ function renderPillNav() {
 
 function render() {
   const app = document.getElementById("app");
-  const route = currentRoute();
-  const city = TRIP.cities.find(c => c.id === route);
-
-  let html;
-  if (route === "pendientes") {
-    html = renderPendingView();
-  } else if (city) {
-    html = renderDetail(city);
-  } else {
-    html = renderHome();
-  }
-
-  app.innerHTML = html;
-  app.classList.remove("fade-in");
-  void app.offsetWidth; // fuerza el reflow para que la animación se repita cada vez
-  app.classList.add("fade-in");
-  window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  app.innerHTML = renderMain();
   renderPillNav();
+
+  const route = currentRoute();
+  if (route === "home") {
+    window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  } else {
+    const openEl = document.querySelector(".country-block.open, .pending-block.open");
+    if (openEl) openEl.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 // Un solo país "activo" a la vez. Tocar un país nuevo entra a su detalle;

@@ -234,7 +234,21 @@ La lógica está en `handleRouteClick()`: compara el país tocado contra `curren
 
 ---
 
-## 8. Próximos pasos pendientes
+## 8. De pantallas separadas a un acordeón, y fondo del Coliseo
+
+Se ajustó la sección 6/7: en vez de navegar a una pantalla de "detalle" completamente aparte, ahora **todo vive en una sola pantalla tipo acordeón**. Cada país sigue siendo el mismo botón grande con foto, pero ahora:
+
+- Tocar el cuadro grande de un país lo abre: su contenido (vuelo, hotel, cómo llegar, actividades) aparece pegado justo debajo de esa misma foto, y la página hace scroll suave hasta ahí.
+- Tocar ese mismo cuadro de nuevo lo cierra y vuelve a la vista general — ya no hace falta ir a la barra de pills de arriba para cerrar, la propia foto grande también sirve para abrir y cerrar.
+- La barra de pills sigue funcionando igual (abre/cierra lo mismo), útil sobre todo cuando ya hiciste scroll lejos del cuadro grande.
+
+Técnicamente esto simplificó el código: ya no existen `renderHome()` / `renderDetail()` / `renderPendingView()` como pantallas separadas, sino una sola `renderMain()` que dibuja los tres países (y "Pendientes") en un `.country-grid`, y le agrega el bloque de contenido justo al que coincide con `currentRoute()`.
+
+**Fondo del Coliseo:** la sección "Elige un destino" tenía fondo blanco liso. Se le puso una foto grande y a color del Coliseo de noche (`TRIP.homeBackground` en `data/trip.js`) como fondo de toda esa sección, detrás de los cuadros — se le dio bastante espacio (`gap` más grande entre cuadros y más padding) para que la foto se note claramente y no quede tapada casi del todo por las tarjetas.
+
+---
+
+## 9. Próximos pasos pendientes
 
 - Agregar el vuelo/tren de Edison a `data/trip.js` cuando lo compre.
 - Agregar el tour de París y las actividades de Bruselas/Ámsterdam.

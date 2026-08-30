@@ -7,6 +7,14 @@ const TRIP = {
   startDate: "2026-10-02",
   travelers: ["Edison", "Bryan", "Alejandro", "Heidy"],
 
+  // Fondo grande detrás de "Elige un destino".
+  homeBackground: {
+    url: "https://commons.wikimedia.org/wiki/Special:FilePath/Rome_colosseum_at_night.jpg?width=1600",
+    author: "Alexander Popkov",
+    license: "CC BY-SA 4.0",
+    pageUrl: "https://commons.wikimedia.org/wiki/File:Rome_colosseum_at_night.jpg"
+  },
+
   // Collage de fondo del encabezado. No son ciudades del itinerario —
   // son solo decoración. Todas de Wikimedia Commons (licencias libres).
   heroCollage: [
