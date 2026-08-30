@@ -221,7 +221,20 @@ Ventaja de usar el hash en vez de, por ejemplo, una variable de JavaScript: cada
 
 ---
 
-## 7. Próximos pasos pendientes
+## 7. Collage de fondo y navegación sin botón "Volver"
+
+**Collage:** el encabezado azul ahora tiene un mosaico de 6 fotos de fondo (`TRIP.heroCollage` en `data/trip.js`), con el degradado azul/negro encima en semi-transparente (`.hero-overlay` en el CSS) para que el texto siga siendo legible. Como dos de esas licencias son CC BY / CC BY-SA (exigen crédito), se armó una línea de créditos en el pie de página que junta autores del collage y de las portadas sin repetirlos (`renderHeroCollage()` en `js/app.js`).
+
+**Navegación sin botón "Volver":** en vez de un botón que solo sirve para retroceder, se dejó una barra de países siempre visible (arriba del contenido) que funciona como *toggle*:
+
+- Tocar un país que no es el activo → entra a su detalle.
+- Tocar el país que ya está activo (se ve resaltado en azul) → vuelve al inicio.
+
+La lógica está en `handleRouteClick()`: compara el país tocado contra `currentRoute()` (el país actual, leído del hash) y decide si navega hacia adelante o si vuelve a inicio (`hash = ""`). Es el mismo patrón de una pestaña activa en cualquier app: tocarla de nuevo "cierra" esa sección.
+
+---
+
+## 8. Próximos pasos pendientes
 
 - Agregar el vuelo/tren de Edison a `data/trip.js` cuando lo compre.
 - Agregar el tour de París y las actividades de Bruselas/Ámsterdam.

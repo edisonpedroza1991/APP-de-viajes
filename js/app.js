@@ -33,6 +33,30 @@ function renderHeader() {
     .join("");
 }
 
+function renderHeroCollage() {
+  const collage = TRIP.heroCollage || [];
+  document.getElementById("hero-collage").innerHTML = collage
+    .map(p => `<div class="tile" style="background-image:url('${p.url}')"></div>`)
+    .join("");
+
+  // Crédito consolidado de todas las fotos usadas en la app (collage + portadas),
+  // sin repetir autores — algunas licencias (CC BY / CC BY-SA) lo exigen.
+  const all = [...collage, ...TRIP.cities.map(c => c.photoCredit).filter(Boolean).map(c => ({ author: c.author, license: c.license, pageUrl: c.url }))];
+  const seen = new Set();
+  const unique = all.filter(p => {
+    const key = p.author + p.license;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  const creditsEl = document.getElementById("photo-credits");
+  if (creditsEl) {
+    creditsEl.innerHTML = "Fotos: " + unique
+      .map(p => `<a href="${p.pageUrl}" target="_blank" rel="noopener">${p.author}</a>`)
+      .join(", ") + " — Wikimedia Commons (CC BY / CC BY-SA / CC0)";
+  }
+}
+
 function renderCountdown() {
   const el = document.getElementById("countdown");
   const now = new Date();
@@ -187,7 +211,6 @@ function renderHome() {
 function renderDetail(city) {
   return `
     <section class="detail-view">
-      <button class="back-btn" data-route="home">← Volver</button>
       <div class="detail-banner" style="background-image:url('${city.cover}')">
         <span class="detail-banner-overlay"></span>
         <div class="detail-banner-content">
@@ -211,7 +234,6 @@ function renderPendingView() {
   const items = (TRIP.pending || []).map(p => `<li>${p}</li>`).join("");
   return `
     <section class="detail-view">
-      <button class="back-btn" data-route="home">← Volver</button>
       <h2 class="section-title">Pendientes por confirmar</h2>
       <ul class="pending-list">${items}</ul>
     </section>
@@ -220,6 +242,21 @@ function renderPendingView() {
 
 function currentRoute() {
   return (window.location.hash || "#home").replace("#", "");
+}
+
+// Barra de países siempre visible. No hay botón "Volver": tocar el país que
+// ya está activo vuelve al inicio (ver handleRouteClick). Solo se resalta
+// como activo cuando estás dentro de ese país o de pendientes.
+function renderPillNav() {
+  const route = currentRoute();
+  const nav = document.getElementById("pill-nav");
+  const cityPills = TRIP.cities.map(c => `
+    <button class="nav-pill ${route === c.id ? "active" : ""}" data-route="${c.id}">${c.flag} ${c.name}</button>
+  `).join("");
+  const pendingPill = (TRIP.pending || []).length > 0
+    ? `<button class="nav-pill ${route === "pendientes" ? "active" : ""}" data-route="pendientes">📋</button>`
+    : "";
+  nav.innerHTML = cityPills + pendingPill;
 }
 
 function render() {
@@ -241,21 +278,28 @@ function render() {
   void app.offsetWidth; // fuerza el reflow para que la animación se repita cada vez
   app.classList.add("fade-in");
   window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  renderPillNav();
+}
+
+// Un solo país "activo" a la vez. Tocar un país nuevo entra a su detalle;
+// tocar el país que ya está activo hace de botón "atrás" (vuelve al inicio).
+function handleRouteClick(e) {
+  const target = e.target.closest("[data-route]");
+  if (!target) return;
+  const route = target.getAttribute("data-route");
+  const goingHome = route === "home" || route === currentRoute();
+  window.location.hash = goingHome ? "" : route;
 }
 
 function setupRouter() {
-  document.getElementById("app").addEventListener("click", e => {
-    const target = e.target.closest("[data-route]");
-    if (!target) return;
-    const route = target.getAttribute("data-route");
-    window.location.hash = route === "home" ? "" : route;
-  });
+  document.body.addEventListener("click", handleRouteClick);
   window.addEventListener("hashchange", render);
 }
 
 function init() {
   applyPrivateOverrides();
   renderHeader();
+  renderHeroCollage();
   renderCountdown();
   setupRouter();
   render();

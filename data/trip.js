@@ -7,6 +7,17 @@ const TRIP = {
   startDate: "2026-10-02",
   travelers: ["Edison", "Bryan", "Alejandro", "Heidy"],
 
+  // Collage de fondo del encabezado. No son ciudades del itinerario —
+  // son solo decoración. Todas de Wikimedia Commons (licencias libres).
+  heroCollage: [
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Eiffel_Tower_Paris_01.JPG?width=800", author: "Waithamai", license: "CC BY-SA 3.0", pageUrl: "https://commons.wikimedia.org/wiki/File:Eiffel_Tower_Paris_01.JPG" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Amsterdam_Canals_-_panoramio_(1).jpg?width=800", author: "Lawrence W.K. Ho", license: "CC BY-SA 3.0", pageUrl: "https://commons.wikimedia.org/wiki/File:Amsterdam_Canals_-_panoramio_(1).jpg" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Colosseum_of_Rome,_Italy.jpg?width=800", author: "Wilfredor", license: "CC0 1.0", pageUrl: "https://commons.wikimedia.org/wiki/File:Colosseum_of_Rome,_Italy.jpg" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Naples,_Italy,_A_view_over_Bay_of_Naples,_Port_of_Naples_and_Mt._Vesuvius.jpg?width=800", author: "Vyacheslav Argenberg", license: "CC BY 4.0", pageUrl: "https://commons.wikimedia.org/wiki/File:Naples,_Italy,_A_view_over_Bay_of_Naples,_Port_of_Naples_and_Mt._Vesuvius.jpg" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Plaza_Mayor,_Madrid_Spain.JPG?width=800", author: "Komal.tujare", license: "CC BY-SA 3.0 ES", pageUrl: "https://commons.wikimedia.org/wiki/File:Plaza_Mayor,_Madrid_Spain.JPG" },
+    { url: "https://commons.wikimedia.org/wiki/Special:FilePath/Ribeira_Square_on_the_River_Douro_Porto_Portugal_(16440390624).png?width=800", author: "Terry Kearney", license: "CC0 1.0", pageUrl: "https://commons.wikimedia.org/wiki/File:Ribeira_Square_on_the_River_Douro_Porto_Portugal_(16440390624).png" }
+  ],
+
   // Cosas que aún faltan por confirmar o agregar — se muestran en la sección "Pendientes".
   pending: [
     "Vuelo/tren de Edison hasta París (sale desde otro destino, no desde Madrid).",
