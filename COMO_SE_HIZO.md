@@ -203,7 +203,25 @@ gh repo edit edisonpedroza1991/APP-de-viajes --visibility public --accept-visibi
 
 ---
 
-## 6. Próximos pasos pendientes
+## 6. Rediseño: pantalla de inicio por país, fotos y tipografía
+
+Se pasó de una sola página con scroll infinito a una app con "pantallas": una **portada** con un botón grande por país (con foto de fondo) y, al tocarlo, una **vista de detalle** con toda la info de ese destino. Esto se hizo sin librerías, con lo que se llama un "router" muy simple:
+
+- `window.location.hash` (la parte después del `#` en la URL) guarda en qué pantalla estás: vacío = inicio, `#paris`, `#bruselas`, `#amsterdam`, `#pendientes`.
+- Cada vez que el hash cambia (evento `hashchange`), la función `render()` en `js/app.js` vuelve a dibujar el contenido de `<main id="app">` según ese hash.
+- Cualquier botón con `data-route="paris"` simplemente cambia `window.location.hash` — no hace falta un `<a>` por cada botón.
+
+Ventaja de usar el hash en vez de, por ejemplo, una variable de JavaScript: cada cambio de pantalla queda en el historial del navegador, así que el botón "atrás" (o el gesto de deslizar desde el borde en iPhone) funciona solo, sin código adicional.
+
+**Tipografía:** se agregaron dos fuentes de Google Fonts en el `<head>` de `index.html` — `Fredoka` (redondeada, para títulos) y `Poppins` (para el resto del texto), buscando un estilo más juvenil que la fuente del sistema.
+
+**Fotos de portada:** son fotos reales de Wikimedia Commons (banco de imágenes libres), no genéricas ni inventadas — se verificó cada una antes de usarla (que la URL cargue y qué licencia tiene). Las tres son **CC BY-SA 3.0**, licencia que exige dar crédito al autor: por eso cada vista de detalle tiene una línea pequeña "📷 autor · Wikimedia Commons" con link a la foto original. Quedan referenciadas en `data/trip.js` (`cover` y `photoCredit` de cada ciudad).
+
+⚠️ **Trade-off asumido a propósito:** estas fotos se cargan desde internet cada vez (no viven dentro del proyecto), así que si no hay señal la primera vez que abren esa pantalla, no se ven — el resto de la app (fechas, vuelos, hoteles) sigue funcionando igual porque esos datos sí están en el código. Cuando tengan fotos propias del viaje, lo ideal es reemplazar la URL de `cover` por un archivo en `assets/fotos/` para que cargue sin depender de internet.
+
+---
+
+## 7. Próximos pasos pendientes
 
 - Agregar el vuelo/tren de Edison a `data/trip.js` cuando lo compre.
 - Agregar el tour de París y las actividades de Bruselas/Ámsterdam.

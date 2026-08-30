@@ -1,6 +1,10 @@
 # Europa 2026 🧳
 
-App web para organizar el viaje de Edison, Bryan, Alejandro y Heidy por París, Bruselas y Ámsterdam (octubre 2026).
+App web para organizar el viaje de Edison, Bryan, Alejandro y Heidy por París, Bruselas y Ámsterdam (octubre 2026). Pantalla de inicio con un botón grande por país (con foto); al tocarlo se abre el detalle con vuelos, hotel, cómo llegar y actividades.
+
+## Fotos de portada
+
+Las fotos de cada país (`cover` en `data/trip.js`) son de **Wikimedia Commons**, licencia CC BY-SA 3.0 — por eso cada vista de detalle muestra el crédito del autor. Se cargan desde internet, así que si no hay señal la primera vez que se abre esa pantalla, no se ven (el resto de la app no depende de internet). Cuando tengan fotos propias del viaje en `assets/fotos/`, se pueden usar esas en vez de las de Wikimedia editando el campo `cover` de cada ciudad.
 
 ## Cómo actualizar el itinerario
 

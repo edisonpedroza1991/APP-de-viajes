@@ -1,5 +1,10 @@
 // Toda la app se pinta a partir del objeto TRIP definido en data/trip.js.
 // No hay que tocar este archivo para actualizar el itinerario — solo data/trip.js.
+//
+// Navegación: se usa el "hash" de la URL (#paris, #bruselas...) como router
+// muy simple. Cada cambio de hash vuelve a pintar la vista correspondiente,
+// y el botón "atrás" del navegador (o el gesto de deslizar en iPhone) funciona
+// solo porque cada hash cuenta como una entrada de historial.
 
 const ICONS = { flight: "✈️", train: "🚄", bus: "🚌" };
 const TYPE_LABEL = { flight: "Vuelo", train: "Tren", bus: "Bus" };
@@ -51,11 +56,9 @@ function renderCountdown() {
   `;
 }
 
-function renderNav() {
-  const nav = document.getElementById("city-nav");
-  nav.innerHTML = TRIP.cities
-    .map(c => `<a href="#${c.id}">${c.flag} ${c.name}</a>`)
-    .join("");
+function photoCreditLine(credit) {
+  if (!credit) return "";
+  return `<a class="photo-credit" href="${credit.url}" target="_blank" rel="noopener">📷 ${credit.author} · Wikimedia Commons (${credit.license})</a>`;
 }
 
 function transportCard(t) {
@@ -150,58 +153,112 @@ function applyPrivateOverrides() {
   });
 }
 
-function renderCities() {
-  const main = document.getElementById("itinerary");
-  main.innerHTML = TRIP.cities.map(c => `
-    <section class="city-section" id="${c.id}">
-      <div class="city-header">
+// ---------- Vistas ----------
+
+function renderHome() {
+  const cards = TRIP.cities.map(c => `
+    <button class="country-card" data-route="${c.id}" style="background-image:url('${c.cover}')">
+      <span class="country-card-overlay"></span>
+      <span class="country-card-content">
         <span class="flag">${c.flag}</span>
-        <h2>${c.name}, ${c.country}</h2>
-      </div>
-      <p class="city-dates">${fmtDate(c.dateFrom)} → ${fmtDate(c.dateTo)}</p>
-      ${transportCard(c.transportIn)}
-      ${hotelCard(c.hotel)}
-      ${transitCard(c.gettingToHotel)}
-      ${activitiesCard(c.activities)}
-    </section>
+        <span class="country-name">${c.name}</span>
+        <span class="country-dates">${fmtDate(c.dateFrom)} → ${fmtDate(c.dateTo)}</span>
+      </span>
+    </button>
   `).join("");
+
+  const pendingCount = (TRIP.pending || []).length;
+
+  return `
+    <section class="home-view">
+      <h2 class="section-title">Elige un destino</h2>
+      <div class="country-grid">${cards}</div>
+      ${pendingCount > 0 ? `
+        <button class="pending-card" data-route="pendientes">
+          <span class="icon">📋</span>
+          <span>Pendientes por confirmar</span>
+          <span class="pending-count">${pendingCount}</span>
+        </button>
+      ` : ""}
+    </section>
+  `;
 }
 
-function renderPending() {
-  const list = document.getElementById("pending-list");
-  const section = document.getElementById("pending-section");
-  if (!TRIP.pending || TRIP.pending.length === 0) {
-    section.style.display = "none";
-    return;
+function renderDetail(city) {
+  return `
+    <section class="detail-view">
+      <button class="back-btn" data-route="home">← Volver</button>
+      <div class="detail-banner" style="background-image:url('${city.cover}')">
+        <span class="detail-banner-overlay"></span>
+        <div class="detail-banner-content">
+          <span class="flag">${city.flag}</span>
+          <h2>${city.name}, ${city.country}</h2>
+          <p class="city-dates">${fmtDate(city.dateFrom)} → ${fmtDate(city.dateTo)}</p>
+        </div>
+      </div>
+      ${photoCreditLine(city.photoCredit)}
+      <div class="detail-cards">
+        ${transportCard(city.transportIn)}
+        ${hotelCard(city.hotel)}
+        ${transitCard(city.gettingToHotel)}
+        ${activitiesCard(city.activities)}
+      </div>
+    </section>
+  `;
+}
+
+function renderPendingView() {
+  const items = (TRIP.pending || []).map(p => `<li>${p}</li>`).join("");
+  return `
+    <section class="detail-view">
+      <button class="back-btn" data-route="home">← Volver</button>
+      <h2 class="section-title">Pendientes por confirmar</h2>
+      <ul class="pending-list">${items}</ul>
+    </section>
+  `;
+}
+
+function currentRoute() {
+  return (window.location.hash || "#home").replace("#", "");
+}
+
+function render() {
+  const app = document.getElementById("app");
+  const route = currentRoute();
+  const city = TRIP.cities.find(c => c.id === route);
+
+  let html;
+  if (route === "pendientes") {
+    html = renderPendingView();
+  } else if (city) {
+    html = renderDetail(city);
+  } else {
+    html = renderHome();
   }
-  list.innerHTML = TRIP.pending.map(p => `<li>${p}</li>`).join("");
+
+  app.innerHTML = html;
+  app.classList.remove("fade-in");
+  void app.offsetWidth; // fuerza el reflow para que la animación se repita cada vez
+  app.classList.add("fade-in");
+  window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
 }
 
-function setupActiveNav() {
-  const links = Array.from(document.querySelectorAll(".city-nav a"));
-  const sections = TRIP.cities.map(c => document.getElementById(c.id));
-
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        links.forEach(l => l.classList.remove("active"));
-        const active = links.find(l => l.getAttribute("href") === `#${entry.target.id}`);
-        if (active) active.classList.add("active");
-      }
-    });
-  }, { rootMargin: "-40% 0px -50% 0px" });
-
-  sections.forEach(s => s && observer.observe(s));
+function setupRouter() {
+  document.getElementById("app").addEventListener("click", e => {
+    const target = e.target.closest("[data-route]");
+    if (!target) return;
+    const route = target.getAttribute("data-route");
+    window.location.hash = route === "home" ? "" : route;
+  });
+  window.addEventListener("hashchange", render);
 }
 
 function init() {
   applyPrivateOverrides();
   renderHeader();
   renderCountdown();
-  renderNav();
-  renderCities();
-  renderPending();
-  setupActiveNav();
+  setupRouter();
+  render();
   setInterval(renderCountdown, 60 * 1000);
 }
 

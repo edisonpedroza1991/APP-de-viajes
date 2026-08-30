@@ -24,6 +24,8 @@ const TRIP = {
       flag: "🇫🇷",
       dateFrom: "2026-10-02",
       dateTo: "2026-10-03",
+      cover: "https://commons.wikimedia.org/wiki/Special:FilePath/Eiffel_Tower_Paris_01.JPG?width=1200",
+      photoCredit: { author: "Waithamai", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Eiffel_Tower_Paris_01.JPG" },
 
       transportIn: {
         type: "flight",
@@ -68,6 +70,8 @@ const TRIP = {
       flag: "🇧🇪",
       dateFrom: "2026-10-03",
       dateTo: "2026-10-04",
+      cover: "https://commons.wikimedia.org/wiki/Special:FilePath/Grand_place_brussels_WQ3.jpg?width=1200",
+      photoCredit: { author: "Mats Halldin", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Grand_place_brussels_WQ3.jpg" },
 
       transportIn: {
         type: "train",
@@ -107,6 +111,8 @@ const TRIP = {
       flag: "🇳🇱",
       dateFrom: "2026-10-04",
       dateTo: "2026-10-06",
+      cover: "https://commons.wikimedia.org/wiki/Special:FilePath/Amsterdam_Canals_-_panoramio_(1).jpg?width=1200",
+      photoCredit: { author: "Lawrence W.K. Ho", license: "CC BY-SA 3.0", url: "https://commons.wikimedia.org/wiki/File:Amsterdam_Canals_-_panoramio_(1).jpg" },
 
       transportIn: {
         type: "bus",
