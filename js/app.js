@@ -1,0 +1,208 @@
+// Toda la app se pinta a partir del objeto TRIP definido en data/trip.js.
+// No hay que tocar este archivo para actualizar el itinerario — solo data/trip.js.
+
+const ICONS = { flight: "✈️", train: "🚄", bus: "🚌" };
+const TYPE_LABEL = { flight: "Vuelo", train: "Tren", bus: "Bus" };
+
+function fmtDate(iso) {
+  const d = new Date(iso + (iso.length === 10 ? "T00:00" : ""));
+  return d.toLocaleDateString("es-ES", { day: "numeric", month: "short" });
+}
+
+function fmtTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+}
+
+function badge(confirmed) {
+  return confirmed
+    ? `<span class="badge confirmed">Confirmado</span>`
+    : `<span class="badge pending">Pendiente</span>`;
+}
+
+function renderHeader() {
+  document.getElementById("trip-name").textContent = TRIP.name;
+  document.getElementById("trip-subtitle").textContent = TRIP.subtitle;
+  document.getElementById("travelers").innerHTML = TRIP.travelers
+    .map(t => `<span class="traveler-chip">${t}</span>`)
+    .join("");
+}
+
+function renderCountdown() {
+  const el = document.getElementById("countdown");
+  const now = new Date();
+  const start = new Date(TRIP.startDate + "T00:00");
+  const diffMs = start - now;
+
+  if (diffMs <= 0) {
+    el.innerHTML = `<div class="num-block"><span class="num">🎉</span><span class="lbl">¡Viaje en curso o terminado!</span></div>`;
+    return;
+  }
+
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+  el.innerHTML = `
+    <div class="num-block"><span class="num">${days}</span><span class="lbl">Días</span></div>
+    <div class="num-block"><span class="num">${hours}</span><span class="lbl">Horas</span></div>
+    <div class="num-block"><span class="num">${minutes}</span><span class="lbl">Min</span></div>
+  `;
+}
+
+function renderNav() {
+  const nav = document.getElementById("city-nav");
+  nav.innerHTML = TRIP.cities
+    .map(c => `<a href="#${c.id}">${c.flag} ${c.name}</a>`)
+    .join("");
+}
+
+function transportCard(t) {
+  if (!t) return "";
+  const icon = ICONS[t.type] || "🧭";
+  const label = TYPE_LABEL[t.type] || "Transporte";
+  return `
+    <div class="card transport">
+      <div class="card-top">
+        <div class="card-title"><span class="icon">${icon}</span> ${label} · ${t.company}</div>
+        ${badge(t.confirmed)}
+      </div>
+      <div class="route-line">
+        <span>${t.from}</span>
+        <div class="dot"></div><div class="line"></div><div class="dot"></div>
+        <span>${t.to}</span>
+      </div>
+      <div class="route-line times">
+        <span>${fmtTime(t.departure)}</span>
+        <span>${fmtTime(t.arrival)} · ${fmtDate(t.arrival)}</span>
+      </div>
+      <div class="card-row"><span class="k">Código / vuelo</span><span class="v">${t.code}</span></div>
+      ${t.passengers ? `<div class="card-row"><span class="k">Pasajeros</span><span class="v">${t.passengers.join(", ")}</span></div>` : ""}
+      ${t.note ? `<div class="note warn">⚠️ ${t.note}</div>` : ""}
+    </div>
+  `;
+}
+
+function hotelCard(h) {
+  if (!h) return "";
+  return `
+    <div class="card hotel">
+      <div class="card-top">
+        <div class="card-title"><span class="icon">🏨</span> ${h.name}</div>
+        ${badge(h.confirmed)}
+      </div>
+      ${h.address ? `<div class="card-row"><span class="k">Dirección</span><span class="v">${h.address}</span></div>` : ""}
+      ${h.checkIn ? `<div class="card-row"><span class="k">Check-in</span><span class="v">${fmtDate(h.checkIn)}</span></div>` : ""}
+      ${h.checkOut ? `<div class="card-row"><span class="k">Check-out</span><span class="v">${fmtDate(h.checkOut)}</span></div>` : ""}
+      ${h.nights ? `<div class="card-row"><span class="k">Noches</span><span class="v">${h.nights}</span></div>` : ""}
+      ${h.phone ? `<div class="card-row"><span class="k">Teléfono</span><span class="v">${h.phone}</span></div>` : ""}
+      ${h.reservationNumber ? `<div class="card-row"><span class="k">Nº de reserva</span><span class="v">${h.reservationNumber}</span></div>` : ""}
+      ${h.reservationName ? `<div class="card-row"><span class="k">A nombre de</span><span class="v">${h.reservationName}</span></div>` : ""}
+      ${(!h.phone && !h.reservationNumber && h.privateNote) ? `<div class="note">🔒 ${h.privateNote}</div>` : ""}
+    </div>
+  `;
+}
+
+function transitCard(g) {
+  if (!g) return "";
+  return `
+    <div class="card transit-tip">
+      <div class="card-top">
+        <div class="card-title"><span class="icon">🧭</span> Cómo llegar al hotel</div>
+      </div>
+      <div class="card-row"><span class="k">Desde</span><span class="v">${g.from}</span></div>
+      <ul class="options-list">
+        ${g.options.map(o => `<li>${o}</li>`).join("")}
+      </ul>
+      ${g.tip ? `<div class="note">💡 ${g.tip}</div>` : ""}
+    </div>
+  `;
+}
+
+function activitiesCard(activities) {
+  if (!activities || activities.length === 0) {
+    return `<div class="card activity"><div class="card-title"><span class="icon">🎟️</span> Actividades</div><p class="empty-hint">Aún no hay tours o actividades agregadas para esta ciudad.</p></div>`;
+  }
+  return `
+    <div class="card activity">
+      <div class="card-title"><span class="icon">🎟️</span> Actividades</div>
+      ${activities.map(a => `
+        <div class="card-row">
+          <span class="k">${a.name}</span>
+          <span class="v">${a.status === "pendiente" ? badge(false) : badge(true)}</span>
+        </div>
+        ${a.note ? `<div class="note warn">${a.note}</div>` : ""}
+      `).join("")}
+    </div>
+  `;
+}
+
+// Si existe data/trip.private.js (archivo local, no se sube a git) con datos
+// sensibles como teléfono o número de reserva, se combinan aquí encima de TRIP.
+function applyPrivateOverrides() {
+  if (typeof TRIP_PRIVATE === "undefined") return;
+  TRIP.cities.forEach(c => {
+    const override = TRIP_PRIVATE[c.id];
+    if (override && override.hotel) {
+      Object.assign(c.hotel, override.hotel);
+    }
+  });
+}
+
+function renderCities() {
+  const main = document.getElementById("itinerary");
+  main.innerHTML = TRIP.cities.map(c => `
+    <section class="city-section" id="${c.id}">
+      <div class="city-header">
+        <span class="flag">${c.flag}</span>
+        <h2>${c.name}, ${c.country}</h2>
+      </div>
+      <p class="city-dates">${fmtDate(c.dateFrom)} → ${fmtDate(c.dateTo)}</p>
+      ${transportCard(c.transportIn)}
+      ${hotelCard(c.hotel)}
+      ${transitCard(c.gettingToHotel)}
+      ${activitiesCard(c.activities)}
+    </section>
+  `).join("");
+}
+
+function renderPending() {
+  const list = document.getElementById("pending-list");
+  const section = document.getElementById("pending-section");
+  if (!TRIP.pending || TRIP.pending.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+  list.innerHTML = TRIP.pending.map(p => `<li>${p}</li>`).join("");
+}
+
+function setupActiveNav() {
+  const links = Array.from(document.querySelectorAll(".city-nav a"));
+  const sections = TRIP.cities.map(c => document.getElementById(c.id));
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        links.forEach(l => l.classList.remove("active"));
+        const active = links.find(l => l.getAttribute("href") === `#${entry.target.id}`);
+        if (active) active.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-40% 0px -50% 0px" });
+
+  sections.forEach(s => s && observer.observe(s));
+}
+
+function init() {
+  applyPrivateOverrides();
+  renderHeader();
+  renderCountdown();
+  renderNav();
+  renderCities();
+  renderPending();
+  setupActiveNav();
+  setInterval(renderCountdown, 60 * 1000);
+}
+
+document.addEventListener("DOMContentLoaded", init);

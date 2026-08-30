@@ -1,0 +1,4 @@
+.DS_Store
+
+# Datos sensibles del viaje (teléfonos, números de reserva). Nunca subir.
+data/trip.private.js
