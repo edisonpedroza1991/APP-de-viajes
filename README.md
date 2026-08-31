@@ -1,6 +1,6 @@
 # Europa 2026 🧳
 
-App web para organizar el viaje de Edison, Bryan, Alejandro y Heidy por París, Bruselas y Ámsterdam (octubre 2026). Pantalla de inicio con un botón grande por país (con foto); al tocarlo se abre el detalle con vuelos, hotel, cómo llegar y actividades.
+App web para organizar el viaje de Edison, Bryan, Alejandro y Heidy por París, Bruselas, Ámsterdam, Nápoles, Roma y (próximamente) Madrid — octubre 2026. Pantalla de inicio con un botón grande por país (con foto); tocarlo abre el detalle con vuelos, hotel, cómo llegar y actividades justo debajo (acordeón), y tocarlo de nuevo lo cierra.
 
 ## Fotos de portada
 
@@ -14,6 +14,7 @@ Todo el contenido vive en **`data/trip.js`**. No hace falta tocar HTML/CSS/JS pa
 - Marca `confirmed: true` o `confirmed: false` según el estado real de cada reserva.
 - Agrega actividades dentro del arreglo `activities` de cada ciudad.
 - Agrega cosas a la lista `pending` mientras no estén confirmadas — aparecen en la sección "Pendientes".
+- Para una ciudad nueva sin todos los datos (por ejemplo Madrid, que aún no tiene fecha ni transporte), no hace falta llenar todo: `transportIn.departure/arrival/code` y `hotel` completo son opcionales — la tarjeta se adapta y muestra "Pendiente". Mira `napoles` o `roma` en `data/trip.js` como ejemplo de una ciudad con datos incompletos.
 
 ## Datos privados (teléfonos, números de reserva)
 
@@ -67,5 +68,8 @@ assets/fotos/                 fotos del grupo o de los destinos
 
 - Vuelo/tren de Edison hasta París.
 - Tour en París (sin reservar).
-- Actividades en Bruselas y Ámsterdam.
+- Actividades en Bruselas, Ámsterdam, Nápoles y Roma.
+- Vuelo Ámsterdam → Nápoles y tren Nápoles → Roma: faltan horarios y códigos.
+- Hoteles en Nápoles y Roma.
+- Tramo Roma → Madrid: fecha, transporte y hotel sin definir todavía.
 - Fotos del grupo / destinos en `assets/fotos/`.

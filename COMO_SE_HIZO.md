@@ -248,9 +248,25 @@ Técnicamente esto simplificó el código: ya no existen `renderHome()` / `rende
 
 ---
 
-## 9. Próximos pasos pendientes
+## 9. Fondo de toda la página, y ciudades con datos incompletos
+
+**Fondo general:** el resto de la página (los espacios entre el encabezado, la sección de destinos y el pie) tenía un gris casi blanco muy plano. En vez de inventar una imagen nueva, se reutilizó el mismo collage de 6 fotos del encabezado (`TRIP.heroCollage`) como fondo fijo de **toda** la página (`#page-bg` en `index.html`, position:fixed detrás de todo con `z-index:-1`), pero difuminado y oscurecido con `filter: blur(6px) brightness(0.55)` para que no compita visualmente con el contenido — se ve como una textura de fondo, no como fotos nítidas. `renderHeroCollage()` en `js/app.js` ahora pinta las mismas fotos en dos sitios (`#hero-collage` nítido arriba, `#page-bg` difuminado detrás de todo) sin duplicar datos.
+
+**Ciudades con información incompleta (Nápoles, Roma):** se agregaron como ciudades reales del itinerario aunque todavía falten datos (vuelo sin horario, hotel sin reservar). Para que la app no se rompa ni invente datos falsos:
+
+- `transportCard()` ahora solo muestra el renglón de horarios si `departure` **y** `arrival` existen los dos — si faltan, simplemente no se pinta esa fila (antes intentaba formatear una fecha `undefined` y mostraba basura tipo "Invalid Date").
+- El campo `code` (número de vuelo/billete) también es opcional ahora.
+- Para un hotel sin definir, no hace falta inventar nada: `hotel: { name: "Alojamiento por definir", confirmed: false }` ya renderiza una tarjeta clara con badge "Pendiente", reutilizando el mismo componente `hotelCard()`.
+
+Esto es más importante de lo que parece: **es mejor que la interfaz "sepa" mostrar huecos de información como huecos** (con su badge de pendiente) en vez de forzar datos inventados solo para que el código no truene.
+
+---
+
+## 10. Próximos pasos pendientes
 
 - Agregar el vuelo/tren de Edison a `data/trip.js` cuando lo compre.
-- Agregar el tour de París y las actividades de Bruselas/Ámsterdam.
+- Agregar el tour de París y las actividades de Bruselas/Ámsterdam/Nápoles/Roma.
+- Completar vuelo Ámsterdam→Nápoles, tren Nápoles→Roma, y hoteles de ambas ciudades.
+- Agregar Madrid como ciudad completa en `data/trip.js` cuando se defina fecha y transporte desde Roma.
 - Meter fotos del grupo en `assets/fotos/` (avísame cuando las tengas y las conecto a la portada).
 - Activar GitHub Pages ahora que el repo es público, si quieren un link directo para todos.

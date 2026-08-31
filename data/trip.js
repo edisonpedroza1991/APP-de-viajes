@@ -3,7 +3,7 @@
 
 const TRIP = {
   name: "Europa 2026",
-  subtitle: "París · Bruselas · Ámsterdam",
+  subtitle: "París · Bruselas · Ámsterdam · Nápoles · Roma · Madrid",
   startDate: "2026-10-02",
   travelers: ["Edison", "Bryan", "Alejandro", "Heidy"],
 
@@ -32,6 +32,13 @@ const TRIP = {
     "Tour en París — aún no reservado.",
     "Actividades y tours en Bruselas.",
     "Actividades y tours en Ámsterdam.",
+    "Vuelo Ámsterdam → Nápoles: falta aerolínea, número de vuelo y horario.",
+    "Hotel en Nápoles (1 noche, 6→7 oct) — falta reservar y agregar dirección.",
+    "Actividades y tours en Nápoles.",
+    "Tren Nápoles → Roma: falta compañía, horario y código de billete.",
+    "Hotel en Roma (2 noches, 7→9 oct) — falta reservar y agregar dirección.",
+    "Actividades y tours en Roma.",
+    "Viaje Roma → Madrid: falta definir fecha, medio de transporte y hotel.",
     "Fotos del grupo en assets/fotos/."
   ],
 
@@ -160,6 +167,54 @@ const TRIP = {
         tip: "Los trenes locales a Centraal salen cada 10-15 min, no hace falta reservarlos."
       },
 
+      activities: []
+    },
+
+    {
+      id: "napoles",
+      name: "Nápoles",
+      country: "Italia",
+      flag: "🇮🇹",
+      dateFrom: "2026-10-06",
+      dateTo: "2026-10-07",
+      cover: "https://commons.wikimedia.org/wiki/Special:FilePath/Naples,_Italy,_A_view_over_Bay_of_Naples,_Port_of_Naples_and_Mt._Vesuvius.jpg?width=1200",
+      photoCredit: { author: "Vyacheslav Argenberg", license: "CC BY 4.0", url: "https://commons.wikimedia.org/wiki/File:Naples,_Italy,_A_view_over_Bay_of_Naples,_Port_of_Naples_and_Mt._Vesuvius.jpg" },
+
+      transportIn: {
+        type: "flight",
+        confirmed: false,
+        company: "Por confirmar",
+        from: "Ámsterdam",
+        to: "Nápoles (NAP)",
+        note: "Falta agregar aerolínea, número de vuelo y horario exacto. Llegada prevista el 6 de octubre."
+      },
+
+      hotel: { name: "Alojamiento por definir", confirmed: false },
+      gettingToHotel: null,
+      activities: []
+    },
+
+    {
+      id: "roma",
+      name: "Roma",
+      country: "Italia",
+      flag: "🇮🇹",
+      dateFrom: "2026-10-07",
+      dateTo: "2026-10-09",
+      cover: "https://commons.wikimedia.org/wiki/Special:FilePath/Colosseum_of_Rome,_Italy.jpg?width=1200",
+      photoCredit: { author: "Wilfredor", license: "CC0 1.0", url: "https://commons.wikimedia.org/wiki/File:Colosseum_of_Rome,_Italy.jpg" },
+
+      transportIn: {
+        type: "train",
+        confirmed: false,
+        company: "Por confirmar",
+        from: "Nápoles",
+        to: "Roma",
+        note: "Falta agregar la compañía de tren, horario y código de billete."
+      },
+
+      hotel: { name: "Alojamiento por definir", confirmed: false },
+      gettingToHotel: null,
       activities: []
     }
   ]

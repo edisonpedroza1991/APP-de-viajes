@@ -35,9 +35,10 @@ function renderHeader() {
 
 function renderHeroCollage() {
   const collage = TRIP.heroCollage || [];
-  document.getElementById("hero-collage").innerHTML = collage
-    .map(p => `<div class="tile" style="background-image:url('${p.url}')"></div>`)
-    .join("");
+  const tilesHtml = collage.map(p => `<div class="tile" style="background-image:url('${p.url}')"></div>`).join("");
+  document.getElementById("hero-collage").innerHTML = tilesHtml;
+  // Mismas fotos, difuminadas, como fondo fijo de toda la página.
+  document.getElementById("page-bg").innerHTML = tilesHtml;
 
   // Crédito consolidado de todas las fotos usadas en la app (fondo + collage +
   // portadas), sin repetir autores — algunas licencias (CC BY / CC BY-SA) lo exigen.
@@ -101,11 +102,13 @@ function transportCard(t) {
         <div class="dot"></div><div class="line"></div><div class="dot"></div>
         <span>${t.to}</span>
       </div>
-      <div class="route-line times">
-        <span>${fmtTime(t.departure)}</span>
-        <span>${fmtTime(t.arrival)} · ${fmtDate(t.arrival)}</span>
-      </div>
-      <div class="card-row"><span class="k">Código / vuelo</span><span class="v">${t.code}</span></div>
+      ${t.departure && t.arrival ? `
+        <div class="route-line times">
+          <span>${fmtTime(t.departure)}</span>
+          <span>${fmtTime(t.arrival)} · ${fmtDate(t.arrival)}</span>
+        </div>
+      ` : ""}
+      ${t.code ? `<div class="card-row"><span class="k">Código / vuelo</span><span class="v">${t.code}</span></div>` : ""}
       ${t.passengers ? `<div class="card-row"><span class="k">Pasajeros</span><span class="v">${t.passengers.join(", ")}</span></div>` : ""}
       ${t.note ? `<div class="note warn">⚠️ ${t.note}</div>` : ""}
     </div>

@@ -21,7 +21,7 @@
 body {
   margin: 0;
   font-family: var(--font-body);
-  background: var(--gray-100);
+  background: var(--blue-900);
   color: var(--black);
   line-height: 1.5;
 }
@@ -29,6 +29,22 @@ body {
 h1, h2, .country-name, .card-title, .pending-card span:nth-child(2) {
   font-family: var(--font-display);
 }
+
+/* Fondo de toda la página: el mismo collage de fotos del header, fijo,
+   difuminado y oscurecido — reemplaza el gris plano detrás de todo. */
+.page-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 3px;
+  background: var(--blue-900);
+  filter: blur(6px) brightness(0.55) saturate(1.1);
+  transform: scale(1.05);
+}
+.page-bg .tile { background-size: cover; background-position: center; }
 
 /* HERO */
 .hero {
@@ -401,13 +417,16 @@ main#app { max-width: 820px; margin: 0 auto; padding: 24px 16px 8px; min-height:
 
 footer {
   text-align: center;
-  color: var(--gray-500);
+  color: var(--gray-300);
   font-size: 0.8rem;
-  padding: 20px;
+  padding: 18px 20px;
+  margin: 8px 12px 20px;
+  background: rgba(10, 31, 68, 0.55);
+  border-radius: var(--radius);
 }
-footer code { background: var(--gray-300); padding: 2px 6px; border-radius: 4px; }
-.credits { font-size: 0.7rem; margin-top: 6px; }
-.credits a { color: var(--gray-500); }
+footer code { background: rgba(255,255,255,0.15); color: var(--white); padding: 2px 6px; border-radius: 4px; }
+.credits { font-size: 0.7rem; margin-top: 6px; opacity: 0.85; }
+.credits a { color: var(--blue-300); }
 
 @media (max-width: 480px) {
   .hero h1 { font-size: 2rem; }
